@@ -3912,13 +3912,16 @@ effectively disabling the output translation facility."
 (defun* compile-file-pathname* (input-file &rest keys &key output-file &allow-other-keys)
   (if (absolute-pathname-p output-file)
       ;; what cfp should be doing, w/ mp* instead of mp
-      (let* ((type (pathname-type (apply 'compile-file-pathname "x.lisp" keys)))
-	     (defaults (make-pathname
-			:type type :defaults (merge-pathnames* input-file))))
-	(merge-pathnames* output-file defaults))
+      (let* ((type (pathname-type (apply 'compile-file-pathname "x.lisp"
+                                         (remove-keys '(#+(and allegro (not (version>= 8 2))) :external-format)
+                                                      keys))))
+             (defaults (make-pathname
+                        :type type :defaults (merge-pathnames* input-file))))
+        (merge-pathnames* output-file defaults))
       (apply-output-translations
-       (apply 'compile-file-pathname input-file
-	      (if output-file keys (remove-keyword :output-file keys))))))
+        (apply 'compile-file-pathname input-file
+                      (remove-keys `(#+(and allegro (not (version>= 8 2))) :external-format
+                                       ,@(unless output-file '(:output-file))) keys)))))
 
 (defun* tmpize-pathname (x)
   (make-pathname
