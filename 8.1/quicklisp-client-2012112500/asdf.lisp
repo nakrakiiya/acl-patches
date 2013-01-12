@@ -2478,10 +2478,7 @@ recursive calls to traverse.")
          c #'(lambda (&rest flags)
                (apply *compile-op-compile-file-function* source-file
                       :output-file output-file
-                      #+(or (and allegro (version>= 8 2))
-                            (not allegro)) :external-format 
-                      #+(or (and allegro (version>= 8 2))
-                            (not allegro)) (component-external-format c)
+                      :external-format (component-external-format c)
                       (append flags (compile-op-flags operation)))))
       (unless output
         (error 'compile-error :component c :operation operation))
